@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Starfall | Lua Obfuscator</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-panel: #13131a;
+            --text-main: #e0e0e0;
+            --text-muted: #888899;
+            --accent-gray: #4a4a5a;
+            --border-color: #2a2a35;
+            --galaxy-glow: radial-gradient(circle at 50% 0%, #2a1b42 0%, #0a0a0f 70%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(1px 1px at 10% 20%, #ffffff 100%, transparent),
+                radial-gradient(1.5px 1.5px at 80% 40%, #a8a8c0 100%, transparent),
+                radial-gradient(1px 1px at 30% 70%, #ffffff 100%, transparent),
+                radial-gradient(2px 2px at 60% 80%, #6b6b8e 100%, transparent),
+                radial-gradient(1px 1px at 90% 90%, #ffffff 100%, transparent),
+                var(--galaxy-glow);
+            background-size: 200px 200px, 300px 300px, 150px 150px, 250px 250px, 100px 100px, 100% 100%;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER & LOGO --- */
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+        }
+
+        /* Recreating the exact logo using CSS */
+        .css-logo {
+            width: 100px;
+            height: 100px;
+            background-color: #ffffff;
+            /* This clip-path creates the hollow triangle with the curved cutouts */
+            clip-path: polygon(
+                50% 0%, 
+                100% 100%, 
+                73% 85%, 
+                50% 45%, 
+                25% 60%, 
+                0% 100%
+            );
+            /* A secondary element to mask the inner shape perfectly */
+            position: relative;
+        }
+        
+        /* The actual precise shape of the logo using SVG for perfect accuracy */
+        .svg-logo {
+            width: 120px;
+            height: 120px;
+            fill: #ffffff;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, #ffffff 0%, #888899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        /* --- MAIN CONTENT (ALPHABETICAL ORDER) --- */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* Introduction Section */
+        #introduction {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        #introduction h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        #introduction p {
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Obfuscator Section */
+        #obfuscator {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .toolbar input {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .toolbar input:focus {
+            border-color: var(--accent-gray);
+        }
+
+        .toolbar button {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .toolbar button:hover {
+            background: #cccccc;
+            transform: translateY(-1px);
+        }
+
+        .toolbar button:active {
+            transform: translateY(1px);
+        }
+
+        .toolbar button:disabled {
+            background: var(--accent-gray);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            height: 400px;
+        }
+
+        .editor-pane {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .pane-header {
+            background: #1a1a24;
+            padding: 8px 15px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pane-header button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .pane-header button:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            white-space: pre;
+            overflow: auto;
+        }
+
+        /* Status Bar */
+        #status-bar {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .status-error { color: #ff5555 !important; }
+        .status-success { color: #55ff55 !important; }
+
+        /* Socials Section */
+        #socials {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        #socials h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .social-btn:hover {
+            border-color: #ffffff;
+            background: #1a1a24;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+                height: 600px;
+            }
+            header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <!-- SVG recreation of the provided image logo -->
+            <svg class="svg-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5 L95 90 L70 75 C60 68 55 55 50 45 C45 55 40 68 30 75 L5 90 Z" />
+            </svg>
+        </div>
+        <h1>Project Starfall</h1>
+        <p>Advanced Lua Obfuscation & Virtualization</p>
+    </header>
+
+    <main>
+        <!-- 1. Introduction -->
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                Welcome to Project Starfall. This tool utilizes a multi-layer causal chain architecture, combining Base85 encoding, dynamic block shuffling, and seed-derived ROT-N transformations. Built to protect your Lua scripts against casual inspection and automated detectors. 
+                <br><br>
+                <em>Note: The output is visually compressed and includes anti-debug and anti-tamper mechanisms that fail silently.</em>
+            </p>
+        </section>
+
+        <!-- 2. Obfuscator -->
+        <section id="obfuscator">
+            <div class="toolbar">
+                <input type="text" id="banner-input" value="--[[-+Protected by Starfall V1.0]]" placeholder="Header Banner">
+                <button id="run-btn">Obfuscate Code</button>
+            </div>
+            
+            <div class="editor-container">
+                <div class="editor-pane">
+                    <div class="pane-header">
+                        <span>Input (Lua)</span>
+                    </div>
+                    <textarea id="input-code" spellcheck="false" placeholder="Paste your Lua code here...">local function greet(name)
+    print("Hello, " .. name .. "!")
+end
+greet("World")
+return 42</textarea>
+                </div>
+                
+                <div class="editor-pane">
+                    <div class="pane-header">
+                        <span>Output (Protected)</span>
+                        <button id="copy-btn">Copy</button>
+                    </div>
+                    <textarea id="output-code" spellcheck="false" readonly placeholder="Output will appear here..."></textarea>
+                </div>
+            </div>
+
+            <div id="status-bar">
+                <span id="status-text">Ready.</span>
+                <span id="status-size"></span>
+            </div>
+        </section>
+
+        <!-- 3. Socials -->
+        <section id="socials">
+            <h2>Socials</h2>
+            <div class="social-links">
+                <!-- Replace # with your actual links -->
+                <a href="#" class="social-btn" target="_blank">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+                <a href="#" class="social-btn" target="_blank">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                    YouTube
+                </a>
+                <a href="#" class="social-btn" target="_blank">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                    Twitter
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Fengari Lua VM -->
+    <script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+
+    <script>
+        // --- THE OBFUSCATOR SOURCE CODE (Embedded in JS) ---
+        const OBFUSCATOR_LUA = String.raw`
+local Obf = {}
+local B85 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_~"
+local ALPHA = "abcdefghijklmnopqrstuvwxyz"
+
+local function rotn_encode(s, seed, alphabet)
+  local A = {}
+  for i = 1, #alphabet do A[alphabet:sub(i,i)] = i end
+  math.randomseed(seed)
+  local out = {}
+  for i = 1, #s do
+    local c = s:sub(i,i)
+    local n = math.random(1, #alphabet - 1)
+    local idx = A[c]
+    if idx then
+      local k = ((idx - 1 + n) % #alphabet) + 1
+      out[i] = alphabet:sub(k, k)
+    else
+      out[i] = c
+    end
+  end
+  return table.concat(out)
+end
+
+local function shuffle_encode(s, W, seed)
+  math.randomseed(seed)
+  local out = {}
+  for i = 1, #s, W do
+    local block = s:sub(i, i + W - 1)
+    local n = #block
+    local perm = {}
+    for j = 1, n do perm[j] = j end
+    for j = n, 2, -1 do
+      local k = math.random(1, j)
+      perm[j], perm[k] = perm[k], perm[j]
+    end
+    local pieces = {}
+    for j = 1, n do pieces[j] = block:sub(perm[j], perm[j]) end
+    out[#out+1] = table.concat(pieces)
+  end
+  return table.concat(out)
+end
+
+local function b85_encode(s)
+  local out = {}
+  for i = 1, #s, 4 do
+    local chunk = s:sub(i, i + 3)
+    local a, b, c, d = chunk:byte(1, 4)
+    b, c, d = b or 0, c or 0, d or 0
+    local v = a * 2^24 + b * 2^16 + c * 2^8 + d
+    local buf = {}
+    for j = 1, 5 do
+      local m = v % 85
+      buf[6 - j] = B85:sub(m + 1, m + 1)
+      v = math.floor(v / 85)
+    end
+    out[#out+1] = table.concat(buf)
+  end
+  return table.concat(out)
+end
+
+local function minify(src)
+  local out = {}
+  local i, n = 1, #src
+  local in_str, in_cmt = false, false
+  local str_delim = nil
+  while i <= n do
+    local c = src:sub(i, i)
+    local c2 = src:sub(i, i + 1)
+    local c3 = src:sub(i, i + 2)
+
+    if not in_str and not in_cmt then
+      local eq = c3:match("^%[(=*)%[")
+      if eq then
+        local close = "]" .. eq .. "]"
+        local j = src:find(close, i + 3, true)
+        if j then
+          out[#out+1] = src:sub(i, j + #close - 1)
+          i = j + #close
+          goto continue
+        end
+      end
+    end
+
+    if not in_str and not in_cmt and c2 == "--" then
+      in_cmt = true; i = i + 2; goto continue
+    end
+    if in_cmt then
+      if c == "\n" then in_cmt = false; out[#out+1] = " " end
+      i = i + 1; goto continue
+    end
+
+    if not in_str and (c == '"' or c == "'") then
+      in_str = true; str_delim = c
+      out[#out+1] = c; i = i + 1; goto continue
+    end
+    if in_str then
+      out[#out+1] = c
+      if c == "\\" then
+        i = i + 1
+        if i <= n then out[#out+1] = src:sub(i, i) end
+      elseif c == str_delim then
+        in_str = false; str_delim = nil
+      end
+      i = i + 1; goto continue
+    end
+
+    if c:match("%s") then
+      local prev = out[#out]
+      local nxt = src:sub(i + 1, i + 1)
+      if prev and nxt and prev:match("[%w_%)%]]") and nxt:match("[%w_%(]") then
+        out[#out+1] = " "
+      end
+      i = i + 1; goto continue
+    end
+
+    out[#out+1] = c
+    i = i + 1
+    ::continue::
+  end
+  return table.concat(out)
+end
+
+function Obf.obfuscate(source, banner)
+  local build_seed = math.random(1, 2^30)
+
+  local L3_ROT  = build_seed ~ 0x11111111
+  local L3_SHUF = build_seed ~ 0x22222222
+  local L3_W    = 21
+  local L2_ROT  = build_seed ~ 0x33333333
+  local L2_SHUF = build_seed ~ 0x44444444
+  local L2_W    = 8
+
+  local l3 = source
+  local l3r = rotn_encode(l3, L3_ROT, ALPHA)
+  local l3s = shuffle_encode(l3r, L3_W, L3_SHUF)
+  local l2r = rotn_encode(l3s, L2_ROT, ALPHA)
+  local l2s = shuffle_encode(l2r, L2_W, L2_SHUF)
+  local payload = b85_encode(l2s)
+
+  local ck = 0
+  for i = 1, #payload do ck = (ck * 31 + payload:byte(i)) % 2^31 end
+
+  local FRAG_COUNT = 8
+  local frags = {}
+  local fsize = math.ceil(#payload / FRAG_COUNT)
+  for i = 1, FRAG_COUNT do
+    frags[i] = payload:sub((i-1)*fsize + 1, i*fsize)
+  end
+
+  local E = {}
+  local function w(s) E[#E+1] = s end
+
+  w("return(function(...)")
+  w("local B85=[=[" .. B85 .. "]=];")
+  w("local BS=" .. build_seed .. ";")
+  w("local CK=" .. ck .. ";")
+  w("local L3R=" .. L3_ROT .. ";local L3S=" .. L3_SHUF .. ";local L3W=" .. L3_W .. ";")
+  w("local L2R=" .. L2_ROT .. ";local L2S=" .. L2_SHUF .. ";local L2W=" .. L2_W .. ";")
+  for i = 1, FRAG_COUNT do
+    w("local F" .. i .. "=[=[" .. frags[i] .. "]=];")
+  end
+  w([=[
+local S=0;local function M(x)S=(S*31+x)%2^31 end
+local P=tonumber(tostring({}):match("0x(%x+)"),16)or 0
+M(P);M(os.time()or 0);M(math.floor((os.clock()or 0)*1e6));M(#(arg or {}));M(BS)
+local DT=false
+if debug then
+  local ok,H=pcall(function()return debug.gethook()end)
+  if ok and H~=nil then DT=true end
+  local ok2,I=pcall(debug.getinfo,2,"S")
+  if ok2 and I and I.what=="C" then DT=true end
+end
+if jit then DT=true end
+if arg and #arg>0 then DT=true end
+if DT then M(0x5A5A5A5A) end
+local PT={F1,F2,F3,F4,F5,F6,F7,F8}
+local PL=table.concat(PT)
+local K=0
+for i=1,#PL do K=(K*31+PL:byte(i))%2^31 end
+local D=K~CK
+if D~=0 then M(D) end
+local BM={}
+for i=1,#B85 do BM[B85:sub(i,i)]=i-1 end
+local function B85D(s)
+  local o={}
+  for i=1,#s,5 do
+    local ch=s:sub(i,i+4)
+    if #ch<5 then break end
+    local v=0
+    for j=1,5 do
+      local c=ch:sub(j,j);local d=BM[c]
+      if not d then return nil end
+      v=v*85+d
+    end
+    o[#o+1]=string.char(math.floor(v/2^24)%256,math.floor(v/2^16)%256,math.floor(v/2^8)%256,v%256)
+  end
+  return table.concat(o)
+end
+local function HS(s,salt)
+  local h=salt or 0
+  for i=1,#s do h=(h*31+s:byte(i))%2^31 end
+  return h
+end
+local L2D=B85D(PL)
+if not L2D then return end
+local A1=HS(L2D,S);M(A1)
+local function SD(s,W,seed)
+  math.randomseed(seed)
+  local o={}
+  for i=1,#s,W do
+    local bl=s:sub(i,i+W-1);local n=#bl
+    local pr={}
+    for j=1,n do pr[j]=j end
+    for j=n,2,-1 do local k=math.random(1,j);pr[j],pr[k]=pr[k],pr[j] end
+    local inv={}
+    for j=1,n do inv[pr[j]]=j end
+    local pc={}
+    for j=1,n do pc[j]=bl:sub(inv[j],inv[j]) end
+    o[#o+1]=table.concat(pc)
+  end
+  return table.concat(o)
+end
+local function RD(s,seed,alphabet)
+  local A={}
+  for i=1,#alphabet do A[alphabet:sub(i,i)]=i end
+  math.randomseed(seed)
+  local o={}
+  for i=1,#s do
+    local c=s:sub(i,i);local n=math.random(1,#alphabet-1);local idx=A[c]
+    if idx then local k=((idx-1-n)%#alphabet)+1;o[i]=alphabet:sub(k,k) else o[i]=c end
+  end
+  return table.concat(o)
+end
+local S2=S
+local L2U=SD(L2D,L2W,S2~L2S)
+local L2A=RD(L2U,S2~L2R,ALPHA)
+local A2=HS(L2A,S2);M(A2)
+local S3=S
+local L3U=SD(L2A,L3W,S3~L3S)
+local L3A=RD(L3U,S3~L3R,ALPHA)
+local fn,err=(loadstring or load)(L3A)
+if not fn then return end
+return fn(...)
+]=])
+  w("end)()")
+
+  local body = minify(table.concat(E))
+  return banner .. "\n" .. body
+end
+
+function run_obfuscator(src, banner)
+    return Obf.obfuscate(src, banner)
+end
+`;
+
+        // --- UI LOGIC ---
+        const runBtn = document.getElementById('run-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const inputCode = document.getElementById('input-code');
+        const outputCode = document.getElementById('output-code');
+        const bannerInput = document.getElementById('banner-input');
+        const statusText = document.getElementById('status-text');
+        const statusSize = document.getElementById('status-size');
+
+        function setStatus(msg, type) {
+            statusText.textContent = msg;
+            statusText.className = type === 'error' ? 'status-error' : (type === 'success' ? 'status-success' : '');
+        }
+
+        runBtn.addEventListener('click', () => {
+            const src = inputCode.value;
+            const banner = bannerInput.value;
+
+            if (!src.trim()) {
+                setStatus('Input is empty.', 'error');
+                return;
+            }
+
+            runBtn.disabled = true;
+            setStatus('Running obfuscation chain...');
+
+            // Use setTimeout to allow the UI to update before the heavy Lua execution
+            setTimeout(() => {
+                try {
+                    // Initialize Fengari and run the obfuscator
+                    const driver = OBFUSCATOR_LUA + `
+                        local src = ...
+                        local banner = ...
+                        return run_obfuscator(src, banner)
+                    `;
+                    
+                    const result = fengari.load(driver, 'obfuscator')(src, banner);
+
+                    if (typeof result !== 'string') {
+                        setStatus('Obfuscator returned non-string.', 'error');
+                    } else {
+                        outputCode.value = result;
+                        setStatus('Successfully obfuscated.', 'success');
+                        statusSize.textContent = `${src.length} B → ${result.length} B`;
+                    }
+                } catch (e) {
+                    setStatus('Error: ' + (e.message || String(e)), 'error');
+                    console.error(e);
+                } finally {
+                    runBtn.disabled = false;
+                }
+            }, 50);
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!outputCode.value) return;
+            navigator.clipboard.writeText(outputCode.value).then(() => {
+                const orig = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => copyBtn.textContent = orig, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
