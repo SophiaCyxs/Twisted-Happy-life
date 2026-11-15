@@ -1,505 +1,1061 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiquidOS | Aqua Lua Obfuscator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --ocean-deep: #020b14;
-            --ocean-mid: #061e35;
-            --aqua-glow: #00e5ff;
-            --aqua-dark: #0066cc;
-            --glass-bg: rgba(6, 30, 53, 0.4);
-            --glass-border: rgba(0, 229, 255, 0.2);
-            --text-main: #e0f7fa;
-            --text-muted: #84a9c0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080910">
+<title>Asyncate — Lua Protection Suite</title>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+:root {
+  --bg:#080910;
+  --panel:#10121c;
+  --panel2:#151827;
+  --border:rgba(255,255,255,.09);
+  --text:#f4f4fa;
+  --muted:#9296aa;
+  --purple:#9565ff;
+  --cyan:#36d9ff;
+  --radius:15px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+button,input,textarea,select{font:inherit}
+button,a{cursor:pointer}
+a{color:inherit;text-decoration:none}
+button{color:inherit}
+.container{width:min(1120px,90%);margin:auto}
+section{padding:100px 0;scroll-margin-top:90px}
+.muted{color:var(--muted)}
+.accent{color:var(--cyan)}
+.gradient{
+  background:linear-gradient(90deg,var(--purple),var(--cyan));
+  background-clip:text;
+  -webkit-background-clip:text;
+  color:transparent
+}
+.eyebrow{
+  color:var(--cyan);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:3px;
+  margin-bottom:13px
+}
+h1{font-size:clamp(38px,7vw,68px);line-height:1.08;letter-spacing:-2px}
+h2{font-size:clamp(27px,4vw,40px);line-height:1.2}
+p{color:var(--muted)}
+.section-desc{max-width:620px;margin-top:14px;font-size:14px}
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:23px;
+  transition:.3s ease
+}
+.card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(149,101,255,.45)
+}
+.btn{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px 18px;
+  background:var(--panel2);
+  color:var(--text);
+  font-size:13px;
+  font-weight:700;
+  transition:.25s
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--purple)}
+.btn.primary{background:var(--purple);border-color:var(--purple)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+.field{
+  width:100%;
+  background:#090b13;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px;
+  outline:none;
+  font-size:13px
+}
+.field:focus{border-color:var(--purple)}
+textarea.field{
+  min-height:220px;
+  resize:vertical;
+  font-family:Consolas,monospace;
+  line-height:1.7
+}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:7px}
+.form-group{margin-bottom:17px}
+.codebox{
+  background:#090b13;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:19px;
+  overflow:auto;
+  margin-top:18px
+}
+pre{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  color:#b9caff;
+  font:12px/1.8 Consolas,monospace
+}
+.status{font-size:12px;color:var(--muted);margin-top:12px}
+.hidden{display:none!important}
 
-        body {
-            background-color: var(--ocean-deep);
-            background-image: 
-                radial-gradient(circle at 20% 0%, rgba(0, 229, 255, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 100%, rgba(0, 102, 204, 0.2) 0%, transparent 40%);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
+/* NAVIGATION */
+.navbar{
+  position:fixed;
+  z-index:1000;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(95%,1150px);
+  padding:12px 20px;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:rgba(12,14,23,.88);
+  backdrop-filter:blur(20px);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px
+}
+.logo{font-weight:900;letter-spacing:1px;font-size:19px}
+.logo span{color:var(--purple)}
+.navlinks{display:flex;gap:20px;align-items:center}
+.navlinks a{font-size:12px;color:var(--muted);transition:.2s}
+.navlinks a:hover{color:var(--cyan)}
+.menu-btn{display:none;background:none;border:0;font-size:22px}
 
-        /* --- HEADER --- */
-        header {
-            padding: 24px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--glass-border);
-            background: rgba(2, 11, 20, 0.5);
-            backdrop-filter: blur(10px);
-        }
+/* HERO */
+.hero{
+  min-height:90vh;
+  display:flex;
+  align-items:center;
+  padding-top:150px;
+  position:relative;
+  overflow:hidden
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  width:350px;height:350px;
+  background:var(--purple);
+  filter:blur(150px);
+  opacity:.13;
+  right:5%;top:20%;
+  pointer-events:none
+}
+.hero-content{position:relative;z-index:1}
+.hero p{max-width:570px;margin-top:18px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:27px}
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 600;
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-            color: #fff;
-        }
+/* EDITOR */
+.editor{
+  margin-top:30px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden
+}
+.editor-top,.editor-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  padding:14px 18px
+}
+.editor-top{border-bottom:1px solid var(--border)}
+.editor-bottom{border-top:1px solid var(--border)}
+.editor textarea{
+  border:0;
+  border-radius:0;
+  background:transparent;
+  min-height:260px;
+  padding:20px
+}
+.editor-actions{display:flex;gap:9px;flex-wrap:wrap}
+.options{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px}
+.options label{display:flex;align-items:center;gap:7px;margin:0}
+.options input{accent-color:var(--purple)}
 
-        .logo-icon {
-            width: 24px;
-            height: 24px;
-            background: var(--aqua-glow);
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--aqua-glow);
-        }
+/* SCROLL ANIMATIONS */
+.reveal{
+  opacity:0;
+  transform:translateY(35px) scale(.97);
+  transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1)
+}
+.reveal.visible{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  animation:bounceIn .8s ease both
+}
+@keyframes bounceIn{
+  0%{transform:translateY(22px)}
+  55%{transform:translateY(-5px)}
+  75%{transform:translateY(2px)}
+  100%{transform:translateY(0)}
+}
 
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 6px 12px;
-            background: rgba(0, 229, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            color: var(--aqua-glow);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:35px 0}
+.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+footer p{font-size:12px}
 
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--aqua-glow);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--aqua-glow);
-            animation: pulse 2s infinite;
-        }
+/* NOTIFICATIONS */
+#toast{
+  position:fixed;
+  z-index:2000;
+  bottom:22px;
+  left:50%;
+  transform:translate(-50%,20px);
+  opacity:0;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  padding:12px 20px;
+  border-radius:12px;
+  font-size:13px;
+  transition:.3s;
+  pointer-events:none
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
 
-        /* --- WORKSPACE --- */
-        .workspace {
-            flex: 1;
-            max-width: 1200px;
-            width: 100%;
-            margin: 40px auto;
-            padding: 0 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .editor-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            height: 500px;
-        }
-
-        .glass-panel {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            backdrop-filter: blur(12px);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        .panel-header {
-            padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        textarea {
-            flex: 1;
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: #fff;
-            padding: 20px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            resize: none;
-            outline: none;
-        }
-
-        .panel-footer {
-            padding: 12px 20px;
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        /* --- BUTTONS --- */
-        .btn {
-            background: var(--aqua-glow);
-            color: #000;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
-        }
-
-        .btn:hover {
-            background: #fff;
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.8);
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            background: var(--text-muted);
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--aqua-glow);
-            border: 1px solid var(--aqua-glow);
-            box-shadow: none;
-        }
-
-        .btn-outline:hover {
-            background: rgba(0, 229, 255, 0.1);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
-        }
-
-        /* --- LOADING ANIMATION OVERLAY --- */
-        .loading-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 11, 20, 0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .liquid-orb {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--aqua-glow), var(--aqua-dark));
-            border-radius: 50%;
-            box-shadow: 0 0 30px var(--aqua-glow), inset 0 0 20px rgba(255,255,255,0.5);
-            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite, morph 3s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-
-        .loading-text {
-            color: var(--aqua-glow);
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 2px;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* --- ANIMATIONS --- */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes morph {
-            0%, 100% { border-radius: 50%; }
-            50% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-        }
-
-        /* Success/Error Status Colors */
-        .success { color: #00ff88 !important; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
-        .error { color: #ff3366 !important; text-shadow: 0 0 10px rgba(255,51,102,0.5); }
-
-    </style>
+/* RESPONSIVE */
+@media(max-width:800px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .navlinks{
+    display:none;
+    position:absolute;
+    top:65px;left:0;right:0;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+    flex-direction:column;
+    align-items:flex-start
+  }
+  .navlinks.open{display:flex}
+  .menu-btn{display:block}
+}
+@media(max-width:550px){
+  .grid{grid-template-columns:1fr}
+  section{padding:75px 0}
+  .hero{min-height:80vh}
+  .navbar{padding:11px 14px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation:none!important;
+    transition:none!important;
+    scroll-behavior:auto!important
+  }
+  .reveal{opacity:1;transform:none}
+}
+</style>
 </head>
+
 <body>
 
-    <header>
-        <div class="logo">
-            <div class="logo-icon"></div>
-            LiquidOS
-        </div>
-        <div class="status-badge">
-            <div class="status-dot"></div>
-            AQUA CORE ACTIVE
-        </div>
-    </header>
+<!-- NAVIGATION -->
 
-    <main class="workspace">
-        <div class="editor-container">
-            <!-- INPUT -->
-            <div class="glass-panel">
-                <div class="panel-header">
-                    <span>Source Code</span>
-                    <span>LUA</span>
-                </div>
-                <textarea id="input" spellcheck="false" placeholder="-- Paste your Lua code here..."></textarea>
-                <div class="panel-footer">
-                    <span id="input-size" style="font-size: 0.8rem; color: var(--text-muted);">0 bytes</span>
-                    <button class="btn" id="obfuscate-btn">Obfuscate</button>
-                </div>
-            </div>
+<nav class="navbar">
+  <a href="#home" class="logo">ASYNCATE<span>.</span></a>
 
-            <!-- OUTPUT -->
-            <div class="glass-panel">
-                <div class="panel-header">
-                    <span>Protected Output</span>
-                    <span>LUA</span>
-                </div>
-                <textarea id="output" spellcheck="false" readonly placeholder="// Output will appear here after compilation and self-testing..."></textarea>
-                <div class="panel-footer">
-                    <span id="status-text" style="font-size: 0.8rem; color: var(--text-muted);">Ready.</span>
-                    <button class="btn btn-outline" id="copy-btn">Copy Output</button>
-                </div>
-            </div>
+  <div class="navlinks" id="navlinks">
+    <a href="#obfuscator">Obfuscator</a>
+    <a href="#links">Link Protector</a>
+    <a href="#api">API & Discord</a>
+    <a href="#python">Python</a>
+    <a href="#account">Account</a>
+  </div>
+
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+</nav>
+
+<!-- HOME -->
+
+<section class="hero" id="home">
+  <div class="container hero-content reveal">
+    <div class="eyebrow">ASYNCATE / DEVELOPER TOOLKIT</div>
+
+    <h1>
+      Lua Protection.<br>
+      <span class="gradient">Reimagined.</span>
+    </h1>
+
+    <p>
+      A dedicated Lua and Luau protection workspace with
+      bytecode transformation, API integration and hosted
+      link protection.
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn primary" href="#obfuscator">Open Obfuscator</a>
+      <a class="btn" href="#links">Protect a Link</a>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHENTICATION -->
+
+<section id="account">
+  <div class="container reveal">
+    <div class="eyebrow">ACCOUNT / AUTHENTICATION</div>
+    <h2>Access Asyncate</h2>
+    <p class="section-desc">Sign in to access the protected workspace.</p>
+
+    <div class="card" style="max-width:480px;margin-top:25px">
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email address</label>
+          <input class="field" type="email" id="email"
+                 placeholder="you@example.com" required>
         </div>
-    </main>
 
-    <!-- LOADING ANIMATION -->
-    <div class="loading-overlay" id="loader">
-        <div class="liquid-orb"></div>
-        <div class="loading-text" id="loading-text">COMPILING VM1...</div>
+        <div class="form-group">
+          <label>Password</label>
+          <input class="field" type="password" id="password"
+                 placeholder="Your password" required>
+        </div>
+
+        <button class="btn primary" type="submit" style="width:100%">
+          Sign In
+        </button>
+      </form>
+
+      <p class="status" id="authStatus">
+        Authentication requires your server's login endpoint.
+      </p>
+
+      <button class="btn" id="logoutButton" onclick="logout()"
+              style="margin-top:12px" hidden>
+        Sign Out
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- OBFUSCATOR -->
+
+<section id="obfuscator">
+  <div class="container reveal">
+    <div class="eyebrow">ENGINE / LUA VM</div>
+    <h2>Asyncate Obfuscator v3.0</h2>
+    <p class="section-desc">
+      Submit Lua or Luau source for transformation.
+    </p>
+
+    <div class="editor">
+      <div class="editor-top">
+        <span>main.lua</span>
+        <span class="accent">● SOURCE EDITOR</span>
+      </div>
+
+      <textarea class="field" id="source"
+        spellcheck="false"
+        placeholder='-- Paste your Lua code here
+
+print("Hello Asyncate")'></textarea>
+
+      <div class="editor-bottom">
+        <span class="muted" style="font-size:12px">
+          Lua / Luau
+        </span>
+        <div class="editor-actions">
+          <button class="btn" onclick="clearEditor()">Clear</button>
+          <button class="btn primary" onclick="obfuscate()">
+            Obfuscate
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Fengari Lua VM -->
-    <script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+    <div class="options">
+      <label><input type="checkbox" id="minify" checked> Minification</label>
+      <label><input type="checkbox" id="strings" checked> String encoding</label>
+      <label><input type="checkbox" id="opcode" checked> Opcode shuffle</label>
+      <label><input type="checkbox" id="vm" checked> VM wrapper</label>
+    </div>
 
-    <script>
-        // ==========================================
-        // THE OBFUSCATOR ENGINE (3-VM ARCHITECTURE)
-        // ==========================================
-        const OBFUSCATOR_LUA = String.raw`
-local Obf = {}
+    <div class="editor">
+      <div class="editor-top">
+        <span>output.lua</span>
+        <span class="muted">GENERATED OUTPUT</span>
+      </div>
 
--- 1. VM1: Custom Base Mapper (xx1 = a, xx2 = b)
-local function VM1_encode(src)
-    local out = {}
-    for i = 1, #src do
-        local b = src:byte(i)
-        out[i] = "xx" .. b
-    end
-    return table.concat(out, "_")
+      <textarea class="field" id="output" readonly
+        placeholder="Your protected code appears here..."></textarea>
+
+      <div class="editor-bottom">
+        <span class="muted" id="obfStatus">Waiting for source</span>
+        <div class="editor-actions">
+          <button class="btn" onclick="copyOutput()">Copy</button>
+          <button class="btn primary" onclick="downloadOutput()">
+            Download .lua
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LINK PROTECTOR -->
+
+<section id="links">
+  <div class="container reveal">
+    <div class="eyebrow">LINK PROTECTION / HOSTED REDIRECTS</div>
+    <h2>Protected Link Generator</h2>
+    <p class="section-desc">
+      Create a hosted redirect using your own custom alias.
+      The destination remains managed by your server.
+    </p>
+
+    <div class="card" style="max-width:720px;margin-top:28px">
+      <form id="linkForm">
+
+        <div class="form-group">
+          <label>Destination URL</label>
+          <input class="field" type="url" id="destination"
+                 placeholder="https://example.com/resource"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label>Custom link name</label>
+          <input class="field" id="alias"
+                 placeholder="my-custom-link"
+                 pattern="[A-Za-z0-9_-]{3,40}"
+                 minlength="3" maxlength="40" required>
+        </div>
+
+        <div class="form-group">
+          <label>Link expiration</label>
+          <select class="field" id="expiration">
+            <option value="never">Never</option>
+            <option value="1d">1 day</option>
+            <option value="7d">7 days</option>
+            <option value="30d">30 days</option>
+          </select>
+        </div>
+
+        <button class="btn primary" type="submit">
+          Generate Protected Link
+        </button>
+      </form>
+
+      <div id="linkResult" class="hidden" style="margin-top:25px">
+        <label>Your hosted link</label>
+        <input class="field" id="generatedLink" readonly>
+        <button class="btn" onclick="copyLink()" style="margin-top:12px">
+          Copy Link
+        </button>
+      </div>
+
+      <p class="status" id="linkStatus">
+        Links are created and hosted by the backend API.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- API -->
+
+<section id="api">
+  <div class="container reveal">
+    <div class="eyebrow">DEVELOPER / API</div>
+    <h2>Asyncate API</h2>
+    <p class="section-desc">
+      Integrate obfuscation into your own programs and Discord bot.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <span class="accent">01 / HTTP</span>
+        <h3>URL Obfuscation</h3>
+        <p>Submit a source URL to your authenticated API.</p>
+      </div>
+
+      <div class="card">
+        <span class="accent">02 / FILE</span>
+        <h3>File Obfuscation</h3>
+        <p>Upload Lua or Luau files directly.</p>
+      </div>
+
+      <div class="card">
+        <span class="accent">03 / DISCORD</span>
+        <h3>Bot Integration</h3>
+        <p>Use slash commands to process source files.</p>
+      </div>
+    </div>
+
+    <div class="codebox">
+      <pre>POST /api/v1/obfuscate
+
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "url": "https://example.com/main.lua",
+  "options": {
+    "minify": true,
+    "stringEncoding": true,
+    "opcodeShuffle": true,
+    "vm": true
+  }
+}</pre>
+    </div>
+
+    <h3 style="margin-top:35px">Discord commands</h3>
+
+    <div class="grid">
+      <div class="card">
+        <h3>/obf URL:</h3>
+        <p>Submit a source URL for obfuscation.</p>
+      </div>
+      <div class="card">
+        <h3>/obf FILE:</h3>
+        <p>Attach a Lua source file to your command.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PYTHON -->
+
+<section id="python">
+  <div class="container reveal">
+    <div class="eyebrow">DEVELOPER / PYTHON</div>
+    <h2>Python Integration</h2>
+    <p class="section-desc">
+      Connect your Python application to Asyncate.
+    </p>
+
+    <div class="codebox">
+      <pre>import requests
+
+API_URL = "https://YOUR-DOMAIN/api/v1/obfuscate"
+API_KEY = "YOUR_API_KEY"
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}"
+}
+
+with open("main.lua", "rb") as file:
+    response = requests.post(
+        API_URL,
+        headers=headers,
+        files={"file": file},
+        timeout=60
+    )
+
+response.raise_for_status()
+
+print(response.json())</pre>
+    </div>
+
+    <div style="margin-top:20px">
+      <button class="btn" onclick="copyPython()">
+        Copy Python Example
+      </button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Installation</h3>
+        <p>Install the requests package using pip.</p>
+        <div class="codebox"><pre>pip install requests</pre></div>
+      </div>
+      <div class="card">
+        <h3>Authentication</h3>
+        <p>Keep your API key private. Never expose it in frontend code.</p>
+      </div>
+      <div class="card">
+        <h3>Job Processing</h3>
+        <p>Poll the API for job status if processing is asynchronous.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+
+<section id="security">
+  <div class="container reveal">
+    <div class="eyebrow">SECURITY / ACCESS CONTROL</div>
+    <h2>Security Controls</h2>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Account Verification</h3>
+        <p>Require authenticated sessions before accepting jobs.</p>
+      </div>
+      <div class="card">
+        <h3>VPN Restrictions</h3>
+        <p>Configure VPN and proxy detection at the server or edge firewall.</p>
+      </div>
+      <div class="card">
+        <h3>Protected Links</h3>
+        <p>Validate destinations, expire tokens and control redirects server-side.</p>
+      </div>
+    </div>
+
+    <p class="status" style="margin-top:20px">
+      VPN detection can produce false positives. No link can be guaranteed
+      undetectable by AI or security scanners.
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+  <div class="container footer-inner">
+    <a href="#home" class="logo">ASYNCATE<span>.</span></a>
+    <p>Lua & Luau Protection Workspace</p>
+    <p>© 2026 Asyncate</p>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+/* ==================================
+   ASYNCATE CONFIGURATION
+================================== */
+
+// Change this to your actual hosted API base URL.
+const API_BASE = "https://YOUR-DOMAIN/api/v1";
+
+// Set to false when your backend is ready.
+const DEMO_MODE = true;
+
+// The backend must enforce all authentication and permissions.
+// Frontend login state is not a security boundary.
+
+/* ==================================
+   UTILITIES
+================================== */
+
+function toast(message) {
+  const el = document.getElementById("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+function toggleMenu() {
+  document.getElementById("navlinks").classList.toggle("open");
+}
+
+document.querySelectorAll(".navlinks a").forEach(a => {
+  a.addEventListener("click", () => {
+    document.getElementById("navlinks").classList.remove("open");
+  });
+});
+
+async function apiRequest(path, options={}) {
+  const response = await fetch(API_BASE + path, {
+    credentials:"include",
+    ...options,
+    headers:{
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed: " + response.status);
+  }
+
+  return data;
+}
+
+/* ==================================
+   AUTHENTICATION
+================================== */
+
+let authenticated = false;
+
+async function checkSession() {
+  if (DEMO_MODE) return;
+
+  try {
+    await apiRequest("/auth/me");
+    authenticated = true;
+    document.getElementById("authStatus").textContent =
+      "Authenticated successfully.";
+    document.getElementById("logoutButton").hidden = false;
+  } catch {
+    authenticated = false;
+  }
+}
+
+document.getElementById("loginForm").addEventListener("submit",
+async event => {
+  event.preventDefault();
+
+  if (DEMO_MODE) {
+    toast("Configure your authentication backend first.");
+    return;
+  }
+
+  const status = document.getElementById("authStatus");
+
+  try {
+    const data = await apiRequest("/auth/login", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:document.getElementById("email").value,
+        password:document.getElementById("password").value
+      })
+    });
+
+    authenticated = true;
+    status.textContent = data.message || "Signed in successfully.";
+    document.getElementById("logoutButton").hidden = false;
+    toast("Welcome to Asyncate.");
+  } catch(error) {
+    status.textContent = error.message;
+  }
+});
+
+async function logout() {
+  try {
+    if (!DEMO_MODE) {
+      await apiRequest("/auth/logout", {method:"POST"});
+    }
+    authenticated = false;
+    document.getElementById("logoutButton").hidden = true;
+    document.getElementById("authStatus").textContent = "Signed out.";
+    toast("Signed out.");
+  } catch(error) {
+    toast(error.message);
+  }
+}
+
+function requireLogin() {
+  if (!authenticated && !DEMO_MODE) {
+    toast("Please sign in first.");
+    document.getElementById("account").scrollIntoView();
+    return false;
+  }
+  return true;
+}
+
+/* ==================================
+   ASYNCATE V3.0 DEMO ENGINE
+================================== */
+
+// Implements the supplied demonstration VM.
+// It only compiles print("text") statements.
+// It is NOT a complete Lua/Luau compiler.
+
+function randomInt(min,max) {
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function generateOpcodes() {
+  return {
+    LOADK:randomInt(1,50),
+    PRINT:randomInt(51,100),
+    CALL:randomInt(101,150),
+    RET:randomInt(151,200)
+  };
+}
+
+function compileBytecode(source,ops) {
+  const match = source.match(
+    /print\s*\(\s*"([^"]*)"\s*\)/
+  );
+
+  if (!match) {
+    throw new Error(
+      'Demo engine only supports print("text").'
+    );
+  }
+
+  const bytes = Array.from(
+    new TextEncoder().encode(match[1])
+  );
+
+  if (bytes.length > 255) {
+    throw new Error("String is too long for this demo VM.");
+  }
+
+  return [
+    ops.LOADK,
+    bytes.length,
+    ...bytes,
+    ops.PRINT,
+    ops.RET
+  ];
+}
+
+function buildVM(source) {
+  const ops = generateOpcodes();
+  const bytecode = compileBytecode(source,ops);
+  const key = randomInt(10,240);
+
+  const payload = bytecode.map(byte =>
+    (byte ^ key).toString(16).padStart(2,"0").toUpperCase()
+  ).join("");
+
+  return `--[[This code was protected using Asyncate Obfuscator v3.0 (Bytecode Virtual Machine)]]
+return(function(...)
+local p = "${payload}";
+local k = ${key};
+local ops = {
+LOADK = ${ops.LOADK},
+PRINT = ${ops.PRINT},
+RET = ${ops.RET}
+};
+
+local function VM_Execute(bytecode_hex,key,opmap)
+local code = {}
+for i=1,#bytecode_hex,2 do
+local b = tonumber(bytecode_hex:sub(i,i+1),16)
+if not b then error("Invalid bytecode") end
+table.insert(code,b ~ key)
 end
 
--- 2. VM2: Keyboard Symbols + Hidden XOR
-local function VM2_encode(src)
-    local key = (100 / 2) - 8 
-    local symbols = "!@#$%^&*()_+{}|:<>?~`-=[]\\;',./"
-    local out = {}
-    for i = 1, #src do
-        local b = src:byte(i)
-        local xored = b ~ key
-        local sym = symbols:sub((xored % #symbols) + 1, (xored % #symbols) + 1)
-        out[i] = sym .. xored 
-    end
-    local shuffled = {}
-    for i = #out, 1, -1 do
-        table.insert(shuffled, out[i])
-    end
-    return table.concat(shuffled)
+local pc = 1
+local stack = {}
+
+while pc <= #code do
+local op = code[pc]
+
+if op == opmap.LOADK then
+local len = code[pc+1]
+pc = pc+2
+local chars = {}
+for i=1,len do
+if not code[pc] then error("Invalid instruction") end
+table.insert(chars,string.char(code[pc]))
+pc = pc+1
+end
+table.insert(stack,table.concat(chars))
+
+elseif op == opmap.PRINT then
+local val = table.remove(stack)
+print(val)
+pc = pc+1
+
+elseif op == opmap.RET then
+break
+
+else
+error("Unknown opcode")
+end
+end
 end
 
--- 3. VM3: String Flipper + Mixed Case Base + Math
-local function VM3_encode(src)
-    local out = {}
-    local rev = src:reverse()
-    for i = 1, #rev do
-        local b = rev:byte(i)
-        local scrambled = (b + (i * 7)) % 256
-        if i % 2 == 0 then
-            out[i] = string.format("%02X", scrambled)
-        else
-            out[i] = string.format("%02x", scrambled)
-        end
-    end
-    local base_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    local final = {}
-    for i = 1, #table.concat(out) do
-        local c = table.concat(out):sub(i, i)
-        local idx = string.find(base_chars, c, 1, true)
-        if idx then
-            final[i] = string.char(90 - (idx - 1))
-        else
-            final[i] = c
-        end
-    end
-    return table.concat(final)
-end
+VM_Execute(p,k,ops);
+end)(...)`;
+}
 
-function Obf.obfuscate(source)
-    local vm1 = VM1_encode(source)
-    local vm2 = VM2_encode(vm1)
-    local vm3 = VM3_encode(vm2)
-    
-    local payload_string = "\"" .. vm3 .. "\""
-    
-    local out = "return(function(...)"
-    out = out .. "local p=" .. payload_string .. ";"
-    out = out .. "local function d3(s)local r={}for i=1,#s do local c=s:sub(i,i)local v=string.byte(c)if v>=65 and v<=90 then r[i]=string.char(((65-(v-65))+128)%256)else r[i]=string.char(v)end end return table.concat(r):reverse()end;"
-    out = out .. "local function d2(s)local k=(100/2)-8 local o={}for i=#s,1,-1 do local c=s:sub(i,i)local v=string.byte(c)o[#o+1]=string.char(v~k)end return table.concat(o)end;"
-    out = out .. "local function d1(s)local o={}for v in s:gmatch('([^_]+)') do o[#o+1]=string.char(tonumber(v:sub(3))) end return table.concat(o)end;"
-    out = out .. "local f,e=load(d1(d2(d3(p))),'@lua','t',_ENV);"
-    out = out .. "if not f then error(e)end;"
-    out = out .. "return f(...)end)(...)"
-    
-    return out
-end
+/* ==================================
+   OBFUSCATOR
+================================== */
 
-function run_obf(src)
-    return Obf.obfuscate(src)
-end
-`;
+async function obfuscate() {
+  if (!requireLogin()) return;
 
-        // ==========================================
-        // UI LOGIC & SELF-TESTING ENVIRONMENT
-        // ==========================================
-        const inputCode = document.getElementById('input');
-        const outputCode = document.getElementById('output');
-        const obfuscateBtn = document.getElementById('obfuscate-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const statusText = document.getElementById('status-text');
-        const inputSize = document.getElementById('input-size');
-        
-        const loader = document.getElementById('loader');
-        const loadingText = document.getElementById('loading-text');
+  const source = document.getElementById("source").value;
+  const output = document.getElementById("output");
+  const status = document.getElementById("obfStatus");
 
-        // Update byte counter
-        inputCode.addEventListener('input', () => {
-            inputSize.textContent = new Blob([inputCode.value]).size + ' bytes';
-        });
+  if (!source.trim()) {
+    toast("Enter Lua source first.");
+    return;
+  }
 
-        function setStatus(msg, type) {
-            statusText.textContent = msg;
-            statusText.className = type;
-        }
+  status.textContent = "Processing...";
 
-        obfuscateBtn.addEventListener('click', () => {
-            const src = inputCode.value;
-            if (!src.trim()) {
-                setStatus("Error: Source code is empty.", "error");
-                return;
-            }
+  try {
+    let result;
 
-            // 1. Show Loading Animation
-            loader.style.display = 'flex';
-            loadingText.textContent = "COMPILING VM1...";
-            outputCode.value = "";
-            
-            // Fake delays to show off the loading animation
-            setTimeout(() => {
-                loadingText.textContent = "ENCRYPTING VM2...";
-                
-                setTimeout(() => {
-                    loadingText.textContent = "OBFUSCATING VM3...";
-                    
-                    setTimeout(() => {
-                        loadingText.textContent = "RUNNING SELF-ENVIRONMENT TEST...";
-                        
-                        setTimeout(() => {
-                            try {
-                                // 2. Run the Obfuscator
-                                const driver = OBFUSCATOR_LUA + `
-                                    local src = ...
-                                    return run_obf(src)
-                                `;
-                                const result = fengari.load(driver, 'obf')(src);
+    if (DEMO_MODE) {
+      result = buildVM(source);
+    } else {
+      const data = await apiRequest("/obfuscate", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          source,
+          options:{
+            minify:document.getElementById("minify").checked,
+            stringEncoding:document.getElementById("strings").checked,
+            opcodeShuffle:document.getElementById("opcode").checked,
+            vm:document.getElementById("vm").checked
+          }
+        })
+      });
 
-                                // 3. Self-Environment Test
-                                // We run the *obfuscated* code in a sandbox to ensure it actually works.
-                                // We intercept 'print' so we don't spam the real console.
-                                const testHarness = `
-                                    local obf_code = ...
-                                    local output = ""
-                                    
-                                    -- Sandbox the environment to catch prints
-                                    local env = setmetatable({}, {__index = _G})
-                                    env.print = function(...) 
-                                        local args = {...}
-                                        for i=1,#args do output = output .. tostring(args[i]) .. " " end
-                                        output = output .. "\\n"
-                                    end
-                                    
-                                    local fn, err = load(obf_code, "test", "t", env)
-                                    if not fn then return false, err end
-                                    
-                                    local success, run_err = pcall(fn)
-                                    if not success then return false, run_err end
-                                    
-                                    return true, output
-                                `;
+      result = data.output;
+      if (!result) throw new Error("API returned no output.");
+    }
 
-                                // Execute the test
-                                const testResult = fengari.load(testHarness, 'test')(result);
-                                
-                                // Check if the test passed (Fengari returns a boolean and the output string)
-                                if (testResult === true) {
-                                    // Success!
-                                    outputCode.value = result;
-                                    setStatus("Success! Self-test passed.", "success");
-                                } else {
-                                    // The obfuscated code threw an error when ran
-                                    setStatus("VM Error: Failed to execute safely.", "error");
-                                    console.error("Self-test failed:", testResult);
-                                    outputCode.value = result; // Still show output so user can debug
-                                }
+    output.value = result;
+    status.textContent = "Processing complete.";
+    toast("Asyncate processing complete.");
+  } catch(error) {
+    status.textContent = error.message;
+    toast(error.message);
+  }
+}
 
-                            } catch (e) {
-                                setStatus("Fatal Error: " + (e.message || e), "error");
-                                console.error(e);
-                            } finally {
-                                // Hide loading overlay
-                                loader.style.display = 'none';
-                            }
-                        }, 600); // delay
-                    }, 600);
-                }, 600);
-            }, 600);
-        });
+function clearEditor() {
+  document.getElementById("source").value = "";
+  document.getElementById("output").value = "";
+  document.getElementById("obfStatus").textContent = "Editor cleared.";
+}
 
-        copyBtn.addEventListener('click', () => {
-            if (!outputCode.value) return;
-            navigator.clipboard.writeText(outputCode.value).then(() => {
-                const orig = copyBtn.textContent;
-                copyBtn.textContent = 'Copied!';
-                copyBtn.style.color = '#00ff88';
-                setTimeout(() => {
-                    copyBtn.textContent = orig;
-                    copyBtn.style.color = 'var(--aqua-glow)';
-                }, 2000);
-            });
-        });
-    </script>
+async function copyOutput() {
+  const text = document.getElementById("output").value;
+  if (!text) return toast("No output to copy.");
+  await navigator.clipboard.writeText(text);
+  toast("Output copied.");
+}
+
+function downloadOutput() {
+  const text = document.getElementById("output").value;
+  if (!text) return toast("No output available.");
+
+  const blob = new Blob([text], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "asyncate-protected.lua";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+}
+
+/* ==================================
+   PROTECTED LINK GENERATOR
+================================== */
+
+document.getElementById("linkForm").addEventListener("submit",
+async event => {
+  event.preventDefault();
+
+  if (!requireLogin()) return;
+
+  const destination = document.getElementById("destination").value;
+  const alias = document.getElementById("alias").value;
+  const expiration = document.getElementById("expiration").value;
+  const status = document.getElementById("linkStatus");
+
+  try {
+    const url = new URL(destination);
+
+    if (!["http:","https:"].includes(url.protocol)) {
+      throw new Error("Only HTTP and HTTPS URLs are supported.");
+    }
+
+    status.textContent = "Creating protected link...";
+
+    if (DEMO_MODE) {
+      throw new Error(
+        "Connect the protected-link backend to create hosted links."
+      );
+    }
+
+    const data = await apiRequest("/links", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        destination:url.href,
+        alias,
+        expiration
+      })
+    });
+
+    if (!data.url) throw new Error("No hosted URL returned.");
+
+    document.getElementById("generatedLink").value = data.url;
+    document.getElementById("linkResult").classList.remove("hidden");
+    status.textContent = "Protected link created.";
+    toast("Your link has been created.");
+  } catch(error) {
+    status.textContent = error.message;
+    toast(error.message);
+  }
+});
+
+async function copyLink() {
+  const value = document.getElementById("generatedLink").value;
+  if (!value) return;
+  await navigator.clipboard.writeText(value);
+  toast("Protected link copied.");
+}
+
+/* ==================================
+   PYTHON COPY
+================================== */
+
+async function copyPython() {
+  const code = `import requests
+
+API_URL = "https://YOUR-DOMAIN/api/v1/obfuscate"
+API_KEY = "YOUR_API_KEY"
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}"
+}
+
+with open("main.lua", "rb") as file:
+    response = requests.post(
+        API_URL,
+        headers=headers,
+        files={"file": file},
+        timeout=60
+    )
+
+response.raise_for_status()
+print(response.json())`;
+
+  await navigator.clipboard.writeText(code);
+  toast("Python example copied.");
+}
+
+/* ==================================
+   SCROLL OBSERVER
+================================== */
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+    } else {
+      entry.target.classList.remove("visible");
+    }
+  });
+},{threshold:.12});
+
+document.querySelectorAll(".reveal").forEach(element => {
+  observer.observe(element);
+});
+
+/* ==================================
+   INITIALIZATION
+================================== */
+
+checkSession();
+
+</script>
 </body>
 </html>
